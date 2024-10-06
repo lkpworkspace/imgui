@@ -10,5 +10,5 @@ set(DEPS_SOURCE_DIR ${CMAKE_SOURCE_DIR}/src CACHE PATH "package source dir")
 set(DEPS_DOWNLOAD_DIR ${CMAKE_SOURCE_DIR}/pkg CACHE PATH "package tgz dir")
 set(DEPS_PATCH_DIR ${CMAKE_SOURCE_DIR}/patch CACHE PATH "package tgz dir")
 
-# include(glew)
+include(glew)
 include(glfw)

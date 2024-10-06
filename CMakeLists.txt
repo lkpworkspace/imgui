@@ -9,7 +9,7 @@ endif()
 project(imgui VERSION 1.91.0)
 
 ### option
-# option(IMGUI_WITH_GLFW_GL3 "Using glfw with gl3" ON)
+option(IMGUI_USE_OPENGL_LOADER_CUSTOM "Using custom opengl loader" OFF)
 
 ### cmake module
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -43,6 +43,12 @@ set(IMGUI_CONF_DIR "conf")
 ### deps
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
+if (IMGUI_USE_OPENGL_LOADER_CUSTOM)
+  find_package(glew REQUIRED)
+endif()
+
+### config
+configure_file (${CMAKE_CURRENT_SOURCE_DIR}/imconfig.h.in ${CMAKE_CURRENT_SOURCE_DIR}/imconfig.h)
 
 ### source
 aux_source_directory(. __srcs)
@@ -64,19 +70,27 @@ target_link_libraries(${PROJECT_NAME}
   OpenGL::GL
   glfw
 )
+if (IMGUI_USE_OPENGL_LOADER_CUSTOM)
+  target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+    GLEW::glew
+  )
+endif ()
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${PROJECT_VERSION})
 set_target_properties(${PROJECT_NAME} PROPERTIES SOVERSION ${PROJECT_VERSION_MAJOR})
 
 ### exec
-add_executable(imgui_demo "examples/example_glfw_opengl3/main.cpp")
-target_include_directories(imgui_demo
-  PRIVATE
-  backends
-)
-target_link_libraries(imgui_demo
-  PRIVATE
-  ${PROJECT_NAME}
-)
+if (NOT IMGUI_USE_OPENGL_LOADER_CUSTOM)
+  add_executable(imgui_demo "examples/example_glfw_opengl3/main.cpp")
+  target_include_directories(imgui_demo
+    PRIVATE
+    backends
+  )
+  target_link_libraries(imgui_demo
+    PRIVATE
+    ${PROJECT_NAME}
+  )
+endif ()
 
 ### export file
 include (GenerateExportHeader)
@@ -96,8 +110,10 @@ file(GLOB header_files
   imstb_truetype.h
   backends/imgui_impl_glfw.h
   backends/imgui_impl_opengl3.h
-  backends/imgui_impl_opengl3_loader.h
 )
+if (NOT IMGUI_USE_OPENGL_LOADER_CUSTOM)
+  list(APPEND header_files backends/imgui_impl_opengl3_loader.h)
+endif()
 install(FILES 
   ${header_files}
   PERMISSIONS
@@ -106,12 +122,19 @@ install(FILES
   WORLD_READ
   DESTINATION ${IMGUI_INC_DIR}/${PROJECT_NAME}
 )
-install(TARGETS ${PROJECT_NAME} imgui_demo
+install(TARGETS ${PROJECT_NAME}
   EXPORT "${PROJECT_NAME}Targets"
   LIBRARY DESTINATION ${IMGUI_LIB_DIR}
   ARCHIVE DESTINATION ${IMGUI_LIB_DIR}
   RUNTIME DESTINATION ${IMGUI_BIN_DIR}
 )
+if (NOT IMGUI_USE_OPENGL_LOADER_CUSTOM)
+  install(TARGETS imgui_demo
+    LIBRARY DESTINATION ${IMGUI_LIB_DIR}
+    ARCHIVE DESTINATION ${IMGUI_LIB_DIR}
+    RUNTIME DESTINATION ${IMGUI_BIN_DIR}
+  )
+endif()
 
 ### install config
 include(InstallingConfigs)

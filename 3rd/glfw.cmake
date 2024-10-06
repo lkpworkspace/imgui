@@ -1,5 +1,7 @@
 include(ExternalProject)
 
+include_guard(GLOBAL)
+
 ExternalProject_Add(
     glfw
     URL https://github.com/glfw/glfw/archive/refs/tags/3.4.tar.gz
@@ -13,8 +15,9 @@ ExternalProject_Add(
     CMAKE_ARGS
         -DCMAKE_BUILD_TYPE=Release
         -DBUILD_SHARED_LIBS=ON
+        -DGLFW_BUILD_EXAMPLES=OFF
+        -DGLFW_BUILD_TESTS=OFF
+        -DGLFW_BUILD_DOCS=OFF
         -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
 )
-
-# -DGLFW_BUILD_EXAMPLES=ON

@@ -71,3 +71,4 @@ output
 
 ## auto gen source code
 export.h
+imconfig.h
