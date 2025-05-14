@@ -1,0 +1,4 @@
+#pragma once
+
+#include "export.h"
+#define IMGUI_API IMGUI_EXPORT
